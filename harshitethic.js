@@ -9,7 +9,7 @@ const {
   prepareWAMessageMedia,
   areJidsSameUser,
   getContentType,
-} = require("@adiwajshing/baileys");
+} = require("@whiskeysockets/baileys");
 const fs = require("fs");
 const util = require("util");
 const chalk = require("chalk");
@@ -93,26 +93,32 @@ module.exports = sansekai = async (client, m, chatUpdate, store) => {
       // Create chat completion request using previous messages from chat history
       const messages = [
         { role: "system", content: customPrompt },
-        ...(chatHistory[m.sender]?.map((msg) => ({ role: msg.role, content: msg.content })) || []),
+        ...(chatHistory[m.sender]?.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        })) || []),
         { role: "user", content: text },
       ];
 
       // Use OpenAI to generate response based on chat history and incoming message
       const response = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o",
         messages: messages,
       });
 
       // Update chat history with incoming message and OpenAI-generated response
       updateChatHistory(m.sender, { role: "user", content: text });
-      updateChatHistory(m.sender, { role: "assistant", content: response.data.choices[0].message.content });
+      updateChatHistory(m.sender, {
+        role: "assistant",
+        content: response.data.choices[0].message.content,
+      });
 
       // Reply to the incoming message with OpenAI-generated response
       m.reply(`${response.data.choices[0].message.content}`);
     }
   } catch (err) {
     // If an error occurs, reply to the incoming message with the error message
-    m.reply(util.format(err));
+    console.log(err);
   }
 };
 
