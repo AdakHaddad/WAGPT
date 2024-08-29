@@ -1,6 +1,5 @@
-const sessionName = "harshitethic";
+const sessionName = "session";
 const donet = "https://harshitethic.in";
-const owner = ["6285179764631"]; // Put your number here ex: ["91xxxxxxxxx"]
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -346,9 +345,6 @@ async function startHisoka() {
       console.log(color("Bot success conneted to server", "green"));
       console.log(color("JOIN: MY TELEGRAM: @harshitethicsupport", "yellow"));
       console.log(color("Type /menu to see menu"));
-      client.sendMessage(owner + "@s.whatsapp.net", {
-        text: `Bot started!\n${donet}`,
-      });
     }
     // console.log('Connected...', update)
   });
