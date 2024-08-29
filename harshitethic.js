@@ -17,7 +17,7 @@ const { OpenAI } = require("openai");
 
 // Load OpenAI API key configuration from file
 let setting = require("./key.json");
-let apikey = setting.keyopenai;
+let apikey = setting.key;
 // Load custom prompt from file
 const customPrompt = fs.readFileSync("custom_prompt.txt", "utf-8");
 
@@ -67,13 +67,13 @@ module.exports = sansekai = async (client, m, chatUpdate, store) => {
 
     // If the message is not a command, use OpenAI to generate a response
     // If OpenAI API key is not configured, return message
-    if (setting.keyopenai === "ISI_APIKEY_OPENAI_DISINI") {
+    if (setting.key === "API key") {
       console.log("OpenAI API key is not configured.");
       return;
     }
 
     // Create OpenAI API client
-    const openai = new OpenAI({ apiKey: setting.keyopenai });
+    const openai = new OpenAI({ apiKey: setting.key });
 
     // Create chat completion request using previous messages from chat history
     const messages = [
