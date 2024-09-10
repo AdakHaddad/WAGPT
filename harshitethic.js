@@ -11,15 +11,13 @@ const {
   getContentType,
 } = require("@whiskeysockets/baileys");
 const fs = require("fs");
-const util = require("util");
 const chalk = require("chalk");
-const { OpenAI } = require("openai");
+const { OpenAI } = require("openai"); // Import OpenAI
 
-// Load OpenAI API key configuration from file
-let setting = require("./key.json");
-let apikey = setting.key;
-// Load custom prompt from file
-const customPrompt = fs.readFileSync("custom_prompt.txt", "utf-8");
+// Load OpenAI API key configuration from environment variable
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // Use environment variable for API key
+});
 
 // Load chat history from file
 const chatHistory = readChatHistoryFromFile();
@@ -41,13 +39,10 @@ function writeChatHistoryToFile(chatHistory) {
 
 // Utility function to update chat history
 function updateChatHistory(sender, message) {
-  // If this is the first message from the sender, create a new array for the sender
   if (!chatHistory[sender]) {
     chatHistory[sender] = [];
   }
-  // Add the message to the sender's chat history
   chatHistory[sender].push(message);
-  // If the chat history exceeds the maximum length of 20 messages, remove the oldest message
   if (chatHistory[sender].length > 20) {
     chatHistory[sender].shift();
   }
@@ -56,56 +51,52 @@ function updateChatHistory(sender, message) {
 // Export function that handles incoming messages
 module.exports = sansekai = async (client, m, chatUpdate, store) => {
   try {
-    // If the sender has no chat history, create a new array for the sender
     if (!chatHistory[m.sender]) chatHistory[m.sender] = [];
 
-    // Get the content of the incoming message
     const text = m.text;
-    const isCmd2 = text.startsWith("!");
-    const command = text.trim().split(/ +/).shift().toLowerCase();
-    const args = text.trim().split(/ +/).slice(1);
 
-    // If the message is not a command, use OpenAI to generate a response
-    // If OpenAI API key is not configured, return message
-    if (setting.key === "API key") {
-      console.log("OpenAI API key is not configured.");
-      return;
-    }
-
-    // Create OpenAI API client
-    const openai = new OpenAI({ apiKey: setting.key });
-
-    // Create chat completion request using previous messages from chat history
+    // Use OpenAI to generate a response
     const messages = [
-      { role: "system", content: customPrompt },
-      ...(chatHistory[m.sender]?.map((msg) => ({
+      {
+        role: "system",
+        content: `
+          Anda adalah seorang rekan kerja yang bersahabat. Teman anda baru saja mengikuti rapat bersama pemimpinnya.
+          Buatlah beberapa pertanyaan dengan gaya non formal tentang pengalaman dan perasaannya saat rapat. 
+          Tindak lanjuti setiap jawaban dengan pertanyaan lebih dalam. 
+          Setelah diskusi, alihkan percakapan untuk mengeksplorasi perasaannya tentang pekerjaannya, terkait Psychological Empowerment: 
+          Competence, Meaning, Impact, Self-determination. Gali secara friendly dan rinci.`,
+      },
+      ...chatHistory[m.sender].map((msg) => ({
         role: msg.role,
         content: msg.content,
-      })) || []),
+      })),
       { role: "user", content: text },
     ];
 
-    // Use OpenAI to generate response based on chat history and incoming message
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o-mini", // Use the gpt-4o-mini model as specified
       messages: messages,
+      temperature: 1,
+      max_tokens: 256,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
     });
 
-    // Update chat history with incoming message and OpenAI-generated response
+    // Update chat history
     updateChatHistory(m.sender, { role: "user", content: text });
     updateChatHistory(m.sender, {
       role: "assistant",
       content: response.choices[0].message.content,
     });
 
-    // Reply to the incoming message with OpenAI-generated response
+    // Reply with OpenAI-generated response
     m.reply(`${response.choices[0].message.content}`);
   } catch (err) {
-    // If an error occurs, reply to the incoming message with the error message
     console.log(err);
   }
 
-  // Watch for changes in this file and reload the code if changes are detected
+  // Watch for changes and reload
   let file = require.resolve(__filename);
   fs.watchFile(file, () => {
     fs.unwatchFile(file);

@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "/subscriptions/50ab97fd-26c7-4636-864c-5db9ad5b89da/resourceGroups/appsvc_linux_centralus_basic/providers/Microsoft.Web/sites/BotHibah",
+  "appService.deploySubpath": "."
+}

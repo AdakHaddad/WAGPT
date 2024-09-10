@@ -198,7 +198,6 @@ async function startHisoka() {
   store.bind(client.ev);
 
   client.ev.on("messages.upsert", async (chatUpdate) => {
-    //console.log(JSON.stringify(chatUpdate, undefined, 2))
     try {
       mek = chatUpdate.messages[0];
       if (!mek.message) return;
@@ -210,6 +209,10 @@ async function startHisoka() {
       if (!client.public && !mek.key.fromMe && chatUpdate.type === "notify")
         return;
       if (mek.key.id.startsWith("BAE5") && mek.key.id.length === 16) return;
+
+      // Add this line to check if the message is from the bot itself
+      if (mek.key.fromMe) return;
+
       m = smsg(client, mek, store);
       require("./harshitethic")(client, m, chatUpdate, store);
     } catch (err) {
@@ -308,6 +311,8 @@ async function startHisoka() {
   client.public = true;
 
   client.serializeM = (m) => smsg(client, m, store);
+  require("dotenv").config();
+
   client.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === "close") {
@@ -342,11 +347,18 @@ async function startHisoka() {
         startHisoka();
       }
     } else if (connection === "open") {
-      console.log(color("Bot success conneted to server", "green"));
+      console.log(color("Bot success connected to server", "green"));
       console.log(color("JOIN: MY TELEGRAM: @harshitethicsupport", "yellow"));
       console.log(color("Type /menu to see menu"));
+
+      const whatsappNumbers = process.env.WHATSAPP_NUMBERS.split(",");
+
+      // Loop through each WhatsApp number and send a "Hi" message
+      for (let number of whatsappNumbers) {
+        await client.sendText(number.trim(), "Halo gimana rapatnya tadi?👋");
+        console.log(`Sent Hi message to ${number}`);
+      }
     }
-    // console.log('Connected...', update)
   });
 
   client.ev.on("creds.update", saveCreds);
