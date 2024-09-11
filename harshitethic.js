@@ -1,18 +1,12 @@
-// Import required modules
 const {
   BufferJSON,
-  WA_DEFAULT_EPHEMERAL,
   generateWAMessageFromContent,
   proto,
-  generateWAMessageContent,
   generateWAMessage,
-  prepareWAMessageMedia,
-  areJidsSameUser,
-  getContentType,
 } = require("@whiskeysockets/baileys");
 const fs = require("fs");
+const { OpenAI } = require("openai");
 const chalk = require("chalk");
-const { OpenAI } = require("openai"); // Import OpenAI
 
 // Load OpenAI API key configuration from environment variable
 const openai = new OpenAI({
@@ -48,23 +42,23 @@ function updateChatHistory(sender, message) {
   }
 }
 
-// Export function that handles incoming messages
+// Main function to handle incoming messages
 module.exports = sansekai = async (client, m, chatUpdate, store) => {
   try {
     if (!chatHistory[m.sender]) chatHistory[m.sender] = [];
 
     const text = m.text;
 
-    // Use OpenAI to generate a response
+    // Use OpenAI to generate a response based on chat history
     const messages = [
       {
         role: "system",
         content: `
-          Anda adalah seorang rekan kerja yang bersahabat. Teman anda baru saja mengikuti rapat bersama pemimpinnya.
-          Buatlah beberapa pertanyaan dengan gaya non formal tentang pengalaman dan perasaannya saat rapat. 
-          Tindak lanjuti setiap jawaban dengan pertanyaan lebih dalam. 
-          Setelah diskusi, alihkan percakapan untuk mengeksplorasi perasaannya tentang pekerjaannya, terkait Psychological Empowerment: 
-          Competence, Meaning, Impact, Self-determination. Gali secara friendly dan rinci.`,
+        Anda adalah seorang rekan kerja yang bersahabat. Teman anda baru saja mengikuti rapat bersama pemimpinnya.
+        Buatlah beberapa pertanyaan dengan gaya non formal tentang pengalaman dan perasaannya saat rapat.
+        Tindak lanjuti setiap jawaban dengan pertanyaan lebih dalam.
+        Setelah diskusi, alihkan percakapan untuk mengeksplorasi perasaannya tentang pekerjaannya, terkait Psychological Empowerment:
+        Competence, Meaning, Impact, Self-determination. Gali secara friendly dan rinci.`,
       },
       ...chatHistory[m.sender].map((msg) => ({
         role: msg.role,
@@ -74,7 +68,7 @@ module.exports = sansekai = async (client, m, chatUpdate, store) => {
     ];
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Use the gpt-4o-mini model as specified
+      model: "gpt-4o-mini", // Use the gpt-4o-mini model
       messages: messages,
       temperature: 1,
       max_tokens: 256,
@@ -90,7 +84,7 @@ module.exports = sansekai = async (client, m, chatUpdate, store) => {
       content: response.choices[0].message.content,
     });
 
-    // Reply with OpenAI-generated response
+    // Reply with the OpenAI-generated response
     m.reply(`${response.choices[0].message.content}`);
   } catch (err) {
     console.log(err);
