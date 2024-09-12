@@ -22,8 +22,6 @@
   "author": "Harshit Sharma",
   "license": "MIT",
   "dependencies": {
-    "@adiwajshing/baileys": "npm:baileys@^6.0.7",
-    "@adiwajshing/keyed-db": "^0.2.4",
     "@hapi/boom": "^10.0.0",
     "@whiskeysockets/baileys": "^6.7.7",
     "awesome-phonenumber": "^2.64.0",
