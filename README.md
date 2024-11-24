@@ -1,3 +1,19 @@
+<h2>PRE-REQUISITES</h2>
+
+<div>
+  <ul>
+    <li>
+      <p>Install Git (for cloning the repository):</p>
+      <pre><code>$ winget install --id Git.Git -e --source winget</code></pre>
+    </li>
+    <li>
+      <p>Install Node.js (to run the code):</p>
+      <pre><code>$ winget install --id OpenJS.NodeJS -e --source winget</code></pre>
+    </li>
+    <li>
+  </ul>
+</div>
+
 <h2>INSTALLATION STEPS</h2>
 <div>
   <ul>
@@ -13,7 +29,7 @@
       <p>Install the required dependencies by running the following command:</p>
       <pre><code>$ npm install</code></pre>
     </li>
-<li>
+    <li>
       <p>Insert OpenAI API key and client phone number in .env file</p>
     </li>
     <li>
@@ -25,5 +41,3 @@
     </li>
   </ul>
 </div>
-
-<br>
